@@ -1,6 +1,8 @@
 package org.jkan997.booklibrary.servlet;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import javax.jcr.Node;
@@ -15,6 +17,7 @@ import org.apache.sling.commons.json.io.JSONWriter;
 import org.apache.sling.jcr.api.SlingRepository;
 import org.jkan997.booklibrary.util.Constans;
 import static org.jkan997.booklibrary.util.Constans.NT_UNSTRUCTURED;
+import static org.jkan997.booklibrary.util.Constans.SLING_ORDERED_FOLDER;
 import org.jkan997.booklibrary.util.internal.CsvProcessor;
 import org.jkan997.booklibrary.util.internal.JcrHelper;
 import org.slf4j.LoggerFactory;
@@ -31,9 +34,25 @@ public class ImportBooks extends SlingSafeMethodsServlet {
     protected void activate(Map<String, Object> props) {
         LOGGER.info("Activation " + this.getClass().getSimpleName());
     }
-    
-    
 
+    // This method import books to Sling Repository
+    private void createApps(Node appsNode) throws Exception {
+        Node bookList = null;
+        if (appsNode.hasNode("booklist")) {
+            bookList = appsNode.getNode("booklist");
+            bookList.remove();
+            appsNode.getSession().save();
+        }
+        bookList = appsNode.addNode("booklist", SLING_ORDERED_FOLDER);
+        Node htlFile = bookList.addNode("booklist.html", "nt:file");
+        Node contentNode = htlFile.addNode("jcr:content", "nt:resource");
+        InputStream bookListIs = getClass().getResourceAsStream("/booklist.html");
+        contentNode.setProperty("jcr:data", bookListIs);
+        bookListIs.close();
+        bookList.getSession().save();
+    }
+
+// This method import books to Sling Repository
     private int importBooks(Node parentNode, String resourceName) throws Exception {
         int res = 0;
         List<String[]> books = CsvProcessor.readBooks(resourceName);
@@ -61,15 +80,18 @@ public class ImportBooks extends SlingSafeMethodsServlet {
             PrintWriter wrt = response.getWriter();
             Session jcrSession = repository.loginAdministrative(null);
             Node rootNode = jcrSession.getRootNode();
+            Node appsNode = rootNode.getNode("apps");
+            createApps(appsNode);
             Node booksNode;
             if (rootNode.hasNode("books")) {
                 booksNode = rootNode.getNode("books");
                 booksNode.remove();
                 jcrSession.save();
             }
-            booksNode = rootNode.addNode("books", "sling:OrderedFolder");
-            Node fictionNode = booksNode.addNode("fiction", "sling:OrderedFolder");
-            Node nonFictionNode = booksNode.addNode("nonfiction", "sling:OrderedFolder");
+            booksNode = rootNode.addNode("books", SLING_ORDERED_FOLDER);
+            booksNode.setProperty("sling:resourceType", "booklist");
+            Node fictionNode = booksNode.addNode("fiction", SLING_ORDERED_FOLDER);
+            Node nonFictionNode = booksNode.addNode("nonfiction", SLING_ORDERED_FOLDER);
             int count = 0;
             count += importBooks(fictionNode, "fiction.csv");
             count += importBooks(nonFictionNode, "nonfiction.csv");
