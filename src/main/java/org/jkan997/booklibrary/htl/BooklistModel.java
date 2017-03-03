@@ -1,0 +1,17 @@
+package org.jkan997.booklibrary.htl;
+
+import java.util.Date;
+import org.apache.sling.api.SlingHttpServletRequest;
+import org.apache.sling.models.annotations.Model;
+
+@Model(adaptables = SlingHttpServletRequest.class)
+public class BooklistModel {
+
+    /*
+        YOUR HTL MODEL HERE HERE
+        */
+    
+    public String getDate() {
+        return (new Date()).toString();
+    }
+}
