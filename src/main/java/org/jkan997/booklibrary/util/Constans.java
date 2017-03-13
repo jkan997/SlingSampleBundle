@@ -12,5 +12,5 @@ package org.jkan997.booklibrary.util;
 public class Constans {
     public static final String BOOK = "book";
     public static final String NT_UNSTRUCTURED = "nt:unstructured";
-
+    public static final String SLING_ORDERED_FOLDER = "sling:OrderedFolder";
 }
