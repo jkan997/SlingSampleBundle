@@ -57,16 +57,16 @@ public class ImportBooks extends SlingSafeMethodsServlet {
         int res = 0;
         List<String[]> books = CsvProcessor.readBooks(resourceName);
         for (String[] book : books) {
-            String author = book[0];
-            String title = book[1];
+            String author = book[1];
+            String title = book[0];
             String newName = JcrHelper.escapeName(title);
             int i = 1;
             while (parentNode.hasNode(newName)) {
                 newName = JcrHelper.escapeName(title) + " " + (i++);
             }
             Node bookNode = parentNode.addNode(newName, NT_UNSTRUCTURED);
-            bookNode.setProperty("author", title);
-            bookNode.setProperty("title", author);
+            bookNode.setProperty("author", author);
+            bookNode.setProperty("title", title);
             bookNode.setProperty("sling:resourceType", Constans.BOOK);
             res++;
         }
