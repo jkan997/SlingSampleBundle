@@ -7,13 +7,15 @@ import java.util.List;
 import java.util.Map;
 import javax.jcr.Node;
 import javax.jcr.Session;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.sling.SlingServlet;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
-import org.apache.sling.commons.json.io.JSONWriter;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+import com.google.gson.stream.JsonWriter;
+import javax.servlet.Servlet;
+import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.jcr.api.SlingRepository;
 import org.jkan997.booklibrary.util.Constans;
 import static org.jkan997.booklibrary.util.Constans.NT_UNSTRUCTURED;
@@ -22,7 +24,10 @@ import org.jkan997.booklibrary.util.internal.CsvProcessor;
 import org.jkan997.booklibrary.util.internal.JcrHelper;
 import org.slf4j.LoggerFactory;
 
-@SlingServlet(paths = "/bin/ImportBooks", methods = "GET", metatype = true)
+@Component(service = Servlet.class, property = {
+    "sling.servlet.methods=" + HttpConstants.METHOD_GET,
+    "sling.servlet.paths=" + "/bin/ImportBooks"
+})
 public class ImportBooks extends SlingSafeMethodsServlet {
 
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(ImportBooks.class);
@@ -96,10 +101,11 @@ public class ImportBooks extends SlingSafeMethodsServlet {
             count += importBooks(fictionNode, "fiction.csv");
             count += importBooks(nonFictionNode, "nonfiction.csv");
             jcrSession.save();
-            JSONWriter json = new JSONWriter(wrt);
-            json.object();
-            json.key("BookCount").value(count);
-            json.endObject();
+            JsonWriter writer = new JsonWriter(wrt);
+            writer.beginObject();
+            writer.name("BookCount").value(count);
+            writer.endObject();
+            writer.close();
             wrt.close();
         } catch (Exception ex) {
             throw new RuntimeException(ex);

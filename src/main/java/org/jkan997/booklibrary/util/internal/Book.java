@@ -4,8 +4,8 @@ import java.util.Calendar;
 import java.util.Date;
 import javax.jcr.Node;
 import javax.jcr.RepositoryException;
-import org.apache.sling.commons.json.JSONException;
-import org.apache.sling.commons.json.io.JSONWriter;
+import com.google.gson.stream.JsonWriter;
+import java.io.IOException;
 import org.jkan997.booklibrary.util.ISO8601;
 
 /**
@@ -72,16 +72,16 @@ public class Book {
 
     public static int C = 0;
 
-    public void toJSON(JSONWriter json) throws JSONException {
-        json.object();
-        json.key("title").value(this.getTitle());
-        json.key("author").value(this.getAuthor());
-        json.key("genre").value(this.getGenre());
+    public void toJSON(JsonWriter json) throws IOException {
+        json.beginObject();
+        json.name("title").value(this.getTitle());
+        json.name("author").value(this.getAuthor());
+        json.name("genre").value(this.getGenre());
         C++;
         if (C % 2 == 0) {
-            json.key("reserved").value(ISO8601.format(Calendar.getInstance()));
+            json.name("reserved").value(ISO8601.format(Calendar.getInstance()));
         }
-        json.key("path").value(this.getPath());
+        json.name("path").value(this.getPath());
         json.endObject();
     }
 }
