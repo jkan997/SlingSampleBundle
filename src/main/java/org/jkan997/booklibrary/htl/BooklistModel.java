@@ -8,7 +8,7 @@ import org.apache.sling.models.annotations.Model;
 @Model(adaptables = SlingHttpServletRequest.class,
         defaultInjectionStrategy = DefaultInjectionStrategy.OPTIONAL)
 public class BooklistModel {
-
+    
     public String getDate() {
         return (new Date()).toString();
     }

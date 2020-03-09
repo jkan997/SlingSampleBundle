@@ -7,14 +7,16 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 import org.apache.sling.api.SlingHttpServletRequest;
 import org.apache.sling.api.SlingHttpServletResponse;
-import org.apache.sling.api.servlets.HttpConstants;
 import org.apache.sling.api.servlets.SlingSafeMethodsServlet;
 import org.apache.sling.jcr.api.SlingRepository;
 import org.slf4j.LoggerFactory;
 
 @Component(service = Servlet.class, property = {
-    "sling.servlet.methods=" + HttpConstants.METHOD_GET,
-    "sling.servlet.paths=" + "/bin/ListBooks"
+    "sling.servlet.resourceTypes=" + "book",
+    "sling.servlet.extensions=" + "reserve",
+    "sling.servlet.extensions=" + "unreserve",
+    "sling.servlet.extensions=" + "rent",
+    "sling.servlet.extensions=" + "return"
 })
 public class ModifyBookState extends SlingSafeMethodsServlet {
 
